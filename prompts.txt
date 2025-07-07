@@ -50,3 +50,28 @@ as soon as knight is launched, screen turns black and has none of the objects
 Disappearing Elements Bug (2025-07-07T16:57:24+02:00):
 
 all elements on the screen still disappear when the knight is launched.
+
+---
+
+Manual Tent Bounce Prompt (2025-07-07T19:58:06+02:00):
+
+the tents restitution does not affect the bounce of the knight. I think we should handle it in the else if    } else if (otherLabel === "tent") {
+        // The bounce is now handled by the tent's restitution property
+      }
+
+---
+
+Tent Bounce Bug (2025-07-07T20:06:59+02:00):
+
+take a look at the tent bounce again, no extra force or bounce seems to be applied to the knight when it hits the tent
+
+---
+
+Tent Bounce Bug 2 (2025-07-07T20:11:21+02:00):
+
+great, the tent else if is executed, but no bounce is happening, this is the log:
+Knight collided with: tent GameScene.ts:156:15
+Applying bounce force from tent!
+
+The documentation for applyforce is here:
+https://brm.io/matter-js/docs/classes/Body.html

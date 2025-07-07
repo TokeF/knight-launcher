@@ -84,9 +84,7 @@ export class GameScene extends Phaser.Scene {
     this.matter.add.rectangle(650, 540, 100, 20, {
       isStatic: true,
       label: "tent",
-      angle: Phaser.Math.DegToRad(-15),
       render: { fillColor: 0xffffff },
-      restitution: 1.2, // Make the tent extra bouncy
     });
 
     this.launchAngleIndicator = this.add
@@ -157,12 +155,14 @@ export class GameScene extends Phaser.Scene {
       const otherLabel = bodyA.label === "knight" ? bodyB.label : bodyA.label;
 
       if (otherLabel === "mud") {
-        this.matter.body.setVelocity(this.knight, {
-          x: this.knight.velocity.x * 0.5,
-          y: this.knight.velocity.y,
+        // Correctly apply velocity change to the colliding body
+        this.matter.body.setVelocity(knightBody, {
+          x: knightBody.velocity.x * 0.5,
+          y: knightBody.velocity.y,
         });
       } else if (otherLabel === "tent") {
-        // The bounce is now handled by the tent's restitution property
+        // Use setVelocity for a more direct and controllable bounce
+        this.matter.body.setVelocity(knightBody, { x: 8, y: -15 });
       }
     });
   }
@@ -204,7 +204,7 @@ export class GameScene extends Phaser.Scene {
 
   private launchKnight() {
     const angleRad = Phaser.Math.DegToRad(this.launchAngle);
-    const forceMagnitude = this.launchPower / 2000;
+    const forceMagnitude = this.launchPower / 1000;
     const force = new Phaser.Math.Vector2(
       Math.cos(angleRad),
       Math.sin(angleRad)
