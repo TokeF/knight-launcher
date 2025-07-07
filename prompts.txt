@@ -1,0 +1,3 @@
+Initial Prompt:
+
+I want to create a new web based minigame. It should be a laucher game where a knight is launced from a ballista across a battlefield into a castle wall. Spar with me to refine the project plan, implementation and ideas for the game.
