@@ -5,12 +5,13 @@ export class GameScene extends Phaser.Scene {
   private ballista!: Phaser.GameObjects.Rectangle;
   private launchAngle = -45;
   private launchPower = 0;
-  private readonly maxLaunchPower = 100;
+  private readonly maxLaunchPower = 200;
   private isCharging = false;
   private isKnightLaunched = false;
   private isKnightStopped = false;
   private canCheckStop = false;
   private isFirstUpdate = true;
+  private knightFollower!: Phaser.GameObjects.Zone;
 
   private maxDistance = 0;
   private scoreText!: Phaser.GameObjects.Text;
@@ -34,6 +35,11 @@ export class GameScene extends Phaser.Scene {
     this.canCheckStop = false;
     this.maxDistance = 0;
     this.isFirstUpdate = true;
+
+    if (this.cameras.main) {
+      this.cameras.main.stopFollow();
+      this.cameras.main.setScroll(0, 0);
+    }
   }
 
   preload() {
@@ -41,7 +47,16 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
-    this.matter.add.rectangle(400, 580, 800, 40, {
+    const worldWidth = 3200;
+    const worldHeight = 600;
+
+    // Set camera and world bounds
+    this.cameras.main.setBounds(0, 0, worldWidth, worldHeight);
+    this.matter.world.setBounds(0, 0, worldWidth, worldHeight);
+    this.cameras.main.setBackgroundColor("#3498db"); // Sky blue
+
+    // Create a much longer ground
+    this.matter.add.rectangle(worldWidth / 2, 580, worldWidth, 40, {
       isStatic: true,
       label: "ground",
     });
@@ -51,6 +66,14 @@ export class GameScene extends Phaser.Scene {
       restitution: 0.95, // Make the knight bouncy
       friction: 0.1, // Add some friction
     });
+
+    // Create an invisible follower game object for the camera to track
+    this.knightFollower = this.add.zone(
+      this.knight.position.x,
+      this.knight.position.y,
+      30,
+      50
+    );
 
     // Add obstacles
     this.matter.add.rectangle(450, 570, 150, 20, {
@@ -76,19 +99,21 @@ export class GameScene extends Phaser.Scene {
       Phaser.Input.Keyboard.KeyCodes.SPACE
     );
 
+    // UI Elements (HUD)
+    this.scoreText = this.add
+      .text(16, 16, "Distance: 0", {
+        fontSize: "32px",
+        color: "#fff",
+      })
+      .setScrollFactor(0); // Fix to camera
 
-    // UI Elements
-    this.scoreText = this.add.text(16, 16, "Distance: 0", {
-      fontSize: "32px",
-      color: "#fff",
-    });
-    this.resetText = this.add.text(
-      400,
-      300,
-      "Press Space to Reset",
-      { fontSize: "48px", color: "#fff" }
-    )
+    this.resetText = this.add
+      .text(400, 300, "Press Space to Reset", {
+        fontSize: "48px",
+        color: "#fff",
+      })
       .setOrigin(0.5)
+      .setScrollFactor(0) // Fix to camera
       .setVisible(false);
 
     this.matter.world.on("collisionstart", this.handleCollision, this);
@@ -104,6 +129,12 @@ export class GameScene extends Phaser.Scene {
     this.updateIndicators();
 
     if (this.isKnightLaunched) {
+      // Sync the invisible follower's position with the knight's physics body
+      this.knightFollower.setPosition(
+        this.knight.position.x,
+        this.knight.position.y
+      );
+
       this.updateScore();
       this.checkKnightStatus();
     }
@@ -181,7 +212,12 @@ export class GameScene extends Phaser.Scene {
     this.matter.applyForce(this.knight, force);
 
     // Wait half a second before checking if the knight has stopped
-    this.time.delayedCall(500, () => { this.canCheckStop = true; });
+    this.time.delayedCall(500, () => {
+      this.canCheckStop = true;
+    });
+
+    // Make the camera follow the invisible knight follower
+    this.cameras.main.startFollow(this.knightFollower, true, 0.08, 0.08);
   }
 
   private updateScore() {

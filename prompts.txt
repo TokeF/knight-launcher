@@ -32,3 +32,21 @@ Almost working, but reset drops the knight, and then displays reset text. I sugg
 Reset Bug Report 3 (2025-07-07T16:45:00+02:00):
 
 The reset is still not working. The keypress from the reset action is carrying over and causing an immediate, zero-power launch in the new scene.
+
+---
+
+Camera Follow Prompt (2025-07-07T16:52:23+02:00):
+
+make the camera follow the knights flight
+
+---
+
+Black Screen Bug (2025-07-07T16:54:40+02:00):
+
+as soon as knight is launched, screen turns black and has none of the objects
+
+---
+
+Disappearing Elements Bug (2025-07-07T16:57:24+02:00):
+
+all elements on the screen still disappear when the knight is launched.
