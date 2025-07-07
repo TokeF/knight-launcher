@@ -1,3 +1,34 @@
 Initial Prompt:
 
 I want to create a new web based minigame. It should be a laucher game where a knight is launced from a ballista across a battlefield into a castle wall. Spar with me to refine the project plan, implementation and ideas for the game.
+
+---
+
+Physics Prompt (2025-07-07T16:19:07+02:00):
+
+let us work a little more on the physics. The knight should bounce like a ball anytime it hits the ground. The bounce should be proportional to the kinetic energy of the knight. The kinetic energy should decrease everytime the ground is hit, until it becomes 0 and the knight will be still.
+
+---
+
+Scoring and Reset Prompt (2025-07-07T16:32:06+02:00):
+
+- Add a score showing the distance the knight has travelled. 
+- when the knight has zero velocity, a title should show stating "Press space bar to reset", pressing spacebar should reset the game.
+
+---
+
+Reset Bug Report (2025-07-07T16:36:56+02:00):
+
+The reset is not working properly. When the game resets, the trajectory line is not there and it is not possible to launch the knight
+
+---
+
+Reset Bug Report 2 (2025-07-07T16:40:27+02:00):
+
+Almost working, but reset drops the knight, and then displays reset text. I suggest we keep a bool isLaunched that changes when the knight is launched, we should only reset once velocity is 0 AND isLaunched
+
+---
+
+Reset Bug Report 3 (2025-07-07T16:45:00+02:00):
+
+The reset is still not working. The keypress from the reset action is carrying over and causing an immediate, zero-power launch in the new scene.
