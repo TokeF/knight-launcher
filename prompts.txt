@@ -162,3 +162,18 @@ reset functionalitys i not working. WHen the player has stopped, spacebar does n
 Simplify Reset Logic (2025-07-08T15:15:41+02:00):
 
 instead of using timeout and cancheckstop, can we just base the check on isKnightLaunched and isKnightStopped
+
+---
+
+Main Menu Request (2025-07-08T16:04:33+02:00):
+
+let us create a main page, it shoudl have two buttons. Play and Shop.
+the Play button should start the game and take us to the screen as it currently is.
+The shop button should just log to concole "shop pressed" for now.
+
+---
+
+Shop Screen Request (2025-07-08T16:12:17+02:00):
+
+Alright now create a shop screen. When pressing the shop button open the shop screen. The shop should contain a list view of items. In the first column should be an image of the item, just add a placeholder for now. Second column should list which stats the item modifies e.g. speed, bounce, friction. Third column should contain a description of the item.
+Add 5 placeholder items.

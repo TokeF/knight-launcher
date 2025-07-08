@@ -1,12 +1,14 @@
 import Phaser from 'phaser';
 import { GameScene } from './GameScene';
+import { MainMenuScene } from './MainMenuScene';
+import { ShopScene } from './ShopScene';
 
 const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
-    width: 800,
+    width: 1024,
     height: 600,
     parent: 'game-container',
-    scene: [GameScene],
+    scene: [MainMenuScene, GameScene, ShopScene],
     physics: {
         default: 'matter',
         matter: {
