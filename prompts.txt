@@ -156,3 +156,9 @@ furthermore, the player sprite is gone
 Reset Functionality Broken (2025-07-08T14:49:49+02:00):
 
 reset functionalitys i not working. WHen the player has stopped, spacebar does not reset, and no text is displayed
+
+---
+
+Simplify Reset Logic (2025-07-08T15:15:41+02:00):
+
+instead of using timeout and cancheckstop, can we just base the check on isKnightLaunched and isKnightStopped

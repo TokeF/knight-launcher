@@ -1,11 +1,6 @@
-import Phaser from 'phaser';
-import { UIManager } from '../ui/UIManager';
-import {
-  CAT_ENEMY,
-  CAT_GROUND,
-  CAT_OBSTACLE,
-  CAT_PLAYER,
-} from '../constants';
+import Phaser from "phaser";
+import { UIManager } from "../ui/UIManager";
+import { CAT_ENEMY, CAT_GROUND, CAT_OBSTACLE, CAT_PLAYER } from "../constants";
 
 export class PlayerManager {
   private scene: Phaser.Scene;
@@ -21,7 +16,6 @@ export class PlayerManager {
   private isCharging = false;
   private isKnightLaunched = false;
   private isKnightStopped = false;
-  private canCheckStop = false;
   private maxDistance = 0;
 
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -37,8 +31,8 @@ export class PlayerManager {
 
   private createPlayer() {
     this.ballista = this.scene.add.rectangle(100, 540, 50, 20, 0x654321);
-    this.knight = this.scene.matter.add.sprite(100, 510, 'knight', undefined, {
-      label: 'knight',
+    this.knight = this.scene.matter.add.sprite(100, 510, "knight", undefined, {
+      label: "knight",
       restitution: 0.5,
       friction: 0.01,
       collisionFilter: {
@@ -46,12 +40,19 @@ export class PlayerManager {
         mask: CAT_GROUND | CAT_OBSTACLE | CAT_ENEMY,
       },
     });
-    this.knightFollower = this.scene.add.zone(this.knight.x, this.knight.y, 30, 50);
+    this.knightFollower = this.scene.add.zone(
+      this.knight.x,
+      this.knight.y,
+      30,
+      50
+    );
   }
 
   private setupInput() {
     this.cursors = this.scene.input.keyboard!.createCursorKeys();
-    this.spacebar = this.scene.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+    this.spacebar = this.scene.input.keyboard!.addKey(
+      Phaser.Input.Keyboard.KeyCodes.SPACE
+    );
   }
 
   public update() {
@@ -102,9 +103,7 @@ export class PlayerManager {
 
     this.knight.setVelocity(velocityX, velocityY);
 
-    setTimeout(() => {
-      this.canCheckStop = true;
-    }, 2000);
+
   }
 
   private updateScore() {
@@ -116,13 +115,11 @@ export class PlayerManager {
   }
 
   private checkKnightStatus() {
-    if (this.isKnightStopped || !this.canCheckStop || !this.knight.body) {
+    if (this.isKnightStopped || !this.knight.body) {
       return;
     }
-
     const velocity = (this.knight.body as any).velocity;
     if (!velocity) return;
-
     const speed = Math.sqrt(velocity.x ** 2 + velocity.y ** 2);
     const velocityThreshold = 0.1;
 
@@ -147,4 +144,6 @@ export class PlayerManager {
       this.ballista.y
     );
   }
+
+
 }
