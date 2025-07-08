@@ -81,3 +81,9 @@ https://brm.io/matter-js/docs/classes/Body.html
 Pixel Art Request (Knight Only) (2025-07-07T20:29:49+02:00):
 
 Generate a pixel art sprite for the knight character, and use it instead of the rectangle
+
+---
+
+Manual Ground Bounce (2025-07-08T09:03:10+02:00):
+
+instead of using restitution for knight bounce, use setVelocity when collision with ground, similar to how tent and mud collission is hanfled

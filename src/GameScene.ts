@@ -5,7 +5,7 @@ export class GameScene extends Phaser.Scene {
   private ballista!: Phaser.GameObjects.Rectangle;
   private launchAngle = -45;
   private launchPower = 0;
-  private readonly maxLaunchPower = 200;
+  private readonly maxLaunchPower = 100;
   private isCharging = false;
   private isKnightLaunched = false;
   private isKnightStopped = false;
@@ -43,7 +43,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('knight', 'assets/knight.png');
+    this.load.image("knight", "assets/knight.png");
   }
 
   create() {
@@ -61,9 +61,8 @@ export class GameScene extends Phaser.Scene {
       label: "ground",
     });
     this.ballista = this.add.rectangle(100, 540, 100, 20, 0x666666);
-    this.knight = this.matter.add.sprite(100, 520, 'knight', undefined, {
+    this.knight = this.matter.add.sprite(100, 530, "knight", undefined, {
       label: "knight",
-      restitution: 0.95, // Make the knight bouncy
       friction: 0.1, // Add some friction
     });
 
@@ -155,6 +154,12 @@ export class GameScene extends Phaser.Scene {
       } else if (otherLabel === "tent") {
         // Use setVelocity for a more direct and controllable bounce
         this.matter.body.setVelocity(knightBody, { x: 8, y: -15 });
+      } else if (otherLabel === "ground") {
+        // Apply a controlled bounce off the ground
+        this.matter.body.setVelocity(knightBody, {
+          x: knightBody.velocity.x * 0.8, // Dampen horizontal movement
+          y: knightBody.velocity.y * -0.8, // Reverse and dampen vertical movement
+        });
       }
     });
   }
@@ -196,7 +201,7 @@ export class GameScene extends Phaser.Scene {
 
   private launchKnight() {
     const angleRad = Phaser.Math.DegToRad(this.launchAngle);
-    const forceMagnitude = this.launchPower / 1000;
+    const forceMagnitude = this.launchPower / 300;
     const force = new Phaser.Math.Vector2(
       Math.cos(angleRad),
       Math.sin(angleRad)
@@ -226,7 +231,7 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
-    // The type definitions for MatterJS are inconsistent, so we cast to 'any' 
+    // The type definitions for MatterJS are inconsistent, so we cast to 'any'
     // to bypass the compiler and access the velocity, which we know exists on a dynamic body.
     const velocity = (this.knight.body as any).velocity;
     if (!velocity) return;
