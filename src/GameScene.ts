@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 
 export class GameScene extends Phaser.Scene {
-  private knight!: MatterJS.BodyType;
+  private knight!: Phaser.Physics.Matter.Sprite;
   private ballista!: Phaser.GameObjects.Rectangle;
   private launchAngle = -45;
   private launchPower = 0;
@@ -43,7 +43,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   preload() {
-    // No assets to preload yet
+    this.load.image('knight', 'assets/knight.png');
   }
 
   create() {
@@ -61,19 +61,14 @@ export class GameScene extends Phaser.Scene {
       label: "ground",
     });
     this.ballista = this.add.rectangle(100, 540, 100, 20, 0x666666);
-    this.knight = this.matter.add.rectangle(100, 520, 30, 50, {
+    this.knight = this.matter.add.sprite(100, 520, 'knight', undefined, {
       label: "knight",
       restitution: 0.95, // Make the knight bouncy
       friction: 0.1, // Add some friction
     });
 
     // Create an invisible follower game object for the camera to track
-    this.knightFollower = this.add.zone(
-      this.knight.position.x,
-      this.knight.position.y,
-      30,
-      50
-    );
+    this.knightFollower = this.add.zone(this.knight.x, this.knight.y, 30, 50);
 
     // Add obstacles
     this.matter.add.rectangle(450, 570, 150, 20, {
@@ -128,10 +123,7 @@ export class GameScene extends Phaser.Scene {
 
     if (this.isKnightLaunched) {
       // Sync the invisible follower's position with the knight's physics body
-      this.knightFollower.setPosition(
-        this.knight.position.x,
-        this.knight.position.y
-      );
+      this.knightFollower.setPosition(this.knight.x, this.knight.y);
 
       this.updateScore();
       this.checkKnightStatus();
@@ -209,7 +201,7 @@ export class GameScene extends Phaser.Scene {
       Math.cos(angleRad),
       Math.sin(angleRad)
     ).scale(forceMagnitude);
-    this.matter.applyForce(this.knight, force);
+    this.knight.applyForce(force);
 
     // Wait half a second before checking if the knight has stopped
     this.time.delayedCall(500, () => {
@@ -221,17 +213,25 @@ export class GameScene extends Phaser.Scene {
   }
 
   private updateScore() {
-    const distance = Math.floor(this.knight.position.x - this.ballista.x);
+    // Calculate horizontal distance from the starting line (100)
+    const distance = Math.floor(this.knight.x - 100);
     if (distance > this.maxDistance) {
       this.maxDistance = distance;
-      this.scoreText.setText(`Distance: ${this.maxDistance}`);
+      this.scoreText.setText(`Distance: ${distance}`);
     }
   }
 
   private checkKnightStatus() {
-    if (this.isKnightStopped || !this.canCheckStop) return;
+    if (this.isKnightStopped || !this.canCheckStop || !this.knight.body) {
+      return;
+    }
 
-    const speed = this.knight.speed;
+    // The type definitions for MatterJS are inconsistent, so we cast to 'any' 
+    // to bypass the compiler and access the velocity, which we know exists on a dynamic body.
+    const velocity = (this.knight.body as any).velocity;
+    if (!velocity) return;
+
+    const speed = Math.sqrt(velocity.x ** 2 + velocity.y ** 2);
     const velocityThreshold = 0.1;
 
     if (speed < velocityThreshold) {
