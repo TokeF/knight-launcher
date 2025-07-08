@@ -150,3 +150,9 @@ Refactor Bugs (2025-07-08T14:46:15+02:00):
 
 after the refactor, the reset functionality is not working
 furthermore, the player sprite is gone
+
+---
+
+Reset Functionality Broken (2025-07-08T14:49:49+02:00):
+
+reset functionalitys i not working. WHen the player has stopped, spacebar does not reset, and no text is displayed

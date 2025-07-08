@@ -76,4 +76,3 @@ export class GameScene extends Phaser.Scene {
     this.gameObjectManager.update(this.cameras.main);
   }
 }
-
