@@ -111,3 +111,10 @@ Refactor and Bugfix Request (2025-07-08T09:30:03+02:00):
 
 1. Refactor collision handling to use a single if/else if chain.
 2. Fix floating enemy knights; they should be locked to the ground and only move horizontally.
+
+---
+
+Enemy Interaction and Removal (2025-07-08T09:37:26+02:00):
+
+1. When an enemy knight is hit, remove it after the bounce effect is applied.
+2. Enemy knights should not interact with anything in the world, including gravity, except the player knight.

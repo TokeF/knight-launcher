@@ -1,5 +1,10 @@
 import Phaser from "phaser";
 
+const CAT_PLAYER = 1 << 0;
+const CAT_GROUND = 1 << 1;
+const CAT_OBSTACLE = 1 << 2;
+const CAT_ENEMY = 1 << 3;
+
 export class GameScene extends Phaser.Scene {
   private knight!: Phaser.Physics.Matter.Sprite;
   private ballista!: Phaser.GameObjects.Rectangle;
@@ -73,25 +78,32 @@ export class GameScene extends Phaser.Scene {
     this.matter.add.rectangle(worldWidth / 2, 580, worldWidth, 40, {
       isStatic: true,
       label: "ground",
+      collisionFilter: { category: CAT_GROUND, mask: CAT_PLAYER },
     });
     this.ballista = this.add.rectangle(100, 540, 100, 20, 0x666666);
     this.knight = this.matter.add.sprite(100, 530, "knight", undefined, {
       label: "knight",
       friction: 0.1, // Add some friction
+      collisionFilter: {
+        category: CAT_PLAYER,
+        mask: CAT_GROUND | CAT_OBSTACLE | CAT_ENEMY,
+      },
     });
 
     // Create an invisible follower game object for the camera to track
     this.knightFollower = this.add.zone(this.knight.x, this.knight.y, 30, 50);
 
     // Add obstacles
-    this.matter.add.rectangle(450, 570, 150, 20, {
+    this.matter.add.rectangle(1500, 555, 200, 10, {
       isStatic: true,
       label: "mud",
+      collisionFilter: { category: CAT_OBSTACLE, mask: CAT_PLAYER },
       render: { fillColor: 0x654321 },
     });
-    this.matter.add.rectangle(650, 540, 100, 20, {
+    this.matter.add.rectangle(800, 540, 80, 80, {
       isStatic: true,
       label: "tent",
+      collisionFilter: { category: CAT_OBSTACLE, mask: CAT_PLAYER },
       render: { fillColor: 0xffffff },
     });
 
@@ -188,11 +200,19 @@ export class GameScene extends Phaser.Scene {
           y: knightBody.velocity.y * -0.8, // Reverse and dampen vertical movement
         });
       } else if (otherLabel === "enemy_knight") {
+        const enemyBody = bodyA.label === "enemy_knight" ? bodyA : bodyB;
+        const enemyObject = enemyBody.gameObject as Phaser.GameObjects.Sprite;
+
         // Apply a boost on enemy collision
         this.matter.body.setVelocity(knightBody, {
           x: knightBody.velocity.x * 1.4,
           y: knightBody.velocity.y * -1.4,
         });
+
+        // Remove the enemy knight
+        if (enemyObject) {
+          enemyObject.destroy();
+        }
       }
     }
   }
@@ -212,6 +232,10 @@ export class GameScene extends Phaser.Scene {
           label: "enemy_knight",
           friction: 1,
           ignoreGravity: true,
+          collisionFilter: {
+            category: CAT_ENEMY,
+            mask: CAT_PLAYER, // Only collides with the player
+          },
         }
       );
 
