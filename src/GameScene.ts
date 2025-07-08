@@ -16,6 +16,7 @@ export class GameScene extends Phaser.Scene {
   private maxDistance = 0;
   private scoreText!: Phaser.GameObjects.Text;
   private highScoreText!: Phaser.GameObjects.Text;
+  private enemyKnights!: Phaser.GameObjects.Group;
   private resetText!: Phaser.GameObjects.Text;
 
   private launchAngleIndicator!: Phaser.GameObjects.Line;
@@ -28,7 +29,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   init() {
-    this.registry.set('highScore', this.registry.get('highScore') || 0);
+    this.registry.set("highScore", this.registry.get("highScore") || 0);
 
     this.launchAngle = -45;
     this.launchPower = 0;
@@ -47,6 +48,13 @@ export class GameScene extends Phaser.Scene {
 
   preload() {
     this.load.image("knight", "assets/knight.png");
+
+    // Create a texture for the enemy knights
+    const graphics = this.add.graphics();
+    graphics.fillStyle(0xffffff, 1);
+    graphics.fillRect(0, 0, 20, 40);
+    graphics.generateTexture("enemy_knight_texture", 20, 40);
+    graphics.destroy();
   }
 
   create() {
@@ -55,7 +63,10 @@ export class GameScene extends Phaser.Scene {
 
     // Set camera and world bounds
     this.cameras.main.setBounds(0, 0, worldWidth, worldHeight);
-    this.matter.world.setBounds(0, 0, worldWidth, worldHeight);
+    this.matter.world.setBounds(0, 0, 3200, 600);
+
+    this.createEnemyKnights();
+
     this.cameras.main.setBackgroundColor("#3498db"); // Sky blue
 
     // Create a much longer ground
@@ -102,14 +113,12 @@ export class GameScene extends Phaser.Scene {
       })
       .setScrollFactor(0); // Fix to camera
 
-    const highScore = this.registry.get('highScore');
+    const highScore = this.registry.get("highScore");
     this.highScoreText = this.add
-      .text(784, 16, `High Score: ${highScore}`,
-        {
-          fontSize: "32px",
-          color: "#fff",
-        }
-      )
+      .text(784, 16, `High Score: ${highScore}`, {
+        fontSize: "32px",
+        color: "#fff",
+      })
       .setOrigin(1, 0)
       .setScrollFactor(0);
 
@@ -140,13 +149,14 @@ export class GameScene extends Phaser.Scene {
 
       this.updateScore();
       this.checkKnightStatus();
+      this.updateEnemies();
     }
   }
 
   private handleCollision(
     event: Phaser.Physics.Matter.Events.CollisionStartEvent
   ) {
-    event.pairs.forEach((pair) => {
+    for (const pair of event.pairs) {
       const { bodyA, bodyB } = pair;
 
       const knightBody =
@@ -167,13 +177,71 @@ export class GameScene extends Phaser.Scene {
         });
       } else if (otherLabel === "tent") {
         // Use setVelocity for a more direct and controllable bounce
-        this.matter.body.setVelocity(knightBody, { x: 8, y: -15 });
+        this.matter.body.setVelocity(knightBody, {
+          x: knightBody.velocity.x * 1.8,
+          y: knightBody.velocity.y * -1.8,
+        });
       } else if (otherLabel === "ground") {
         // Apply a controlled bounce off the ground
         this.matter.body.setVelocity(knightBody, {
           x: knightBody.velocity.x * 0.8, // Dampen horizontal movement
           y: knightBody.velocity.y * -0.8, // Reverse and dampen vertical movement
         });
+      } else if (otherLabel === "enemy_knight") {
+        // Apply a boost on enemy collision
+        this.matter.body.setVelocity(knightBody, {
+          x: knightBody.velocity.x * 1.4,
+          y: knightBody.velocity.y * -1.4,
+        });
+      }
+    }
+  }
+
+  private createEnemyKnights() {
+    this.enemyKnights = this.add.group();
+
+    for (let i = 0; i < 20; i++) {
+      const x = Phaser.Math.Between(400, 3100);
+      // Spawn enemies on the ground (ground top is 560, enemy height is 40, so center is 540)
+      const enemy = this.matter.add.sprite(
+        x,
+        540,
+        "enemy_knight_texture",
+        undefined,
+        {
+          label: "enemy_knight",
+          friction: 1,
+          ignoreGravity: true,
+        }
+      );
+
+      const direction = Phaser.Math.RND.pick([-1, 1]);
+      const distance = Phaser.Math.Between(100, 300);
+      enemy.setData("direction", direction);
+      enemy.setData("moveUntilX", x + distance * direction);
+
+      this.enemyKnights.add(enemy);
+    }
+  }
+
+  private updateEnemies() {
+    this.enemyKnights.getChildren().forEach((gameObject) => {
+      const enemy = gameObject as Phaser.Physics.Matter.Sprite;
+      const speed = 1.5;
+      const direction = enemy.getData("direction");
+      const moveUntilX = enemy.getData("moveUntilX");
+
+      enemy.setVelocityX(speed * direction);
+      enemy.setVelocityY(0); // Ensure no vertical movement
+
+      if (
+        (direction === 1 && enemy.x >= moveUntilX) ||
+        (direction === -1 && enemy.x <= moveUntilX)
+      ) {
+        const newDirection = Phaser.Math.RND.pick([-1, 1]);
+        const newDistance = Phaser.Math.Between(100, 300);
+        enemy.setData("direction", newDirection);
+        enemy.setData("moveUntilX", enemy.x + newDistance * newDirection);
       }
     });
   }
@@ -238,9 +306,9 @@ export class GameScene extends Phaser.Scene {
       this.maxDistance = distance;
       this.scoreText.setText(`Distance: ${distance}`);
 
-      const highScore = this.registry.get('highScore');
+      const highScore = this.registry.get("highScore");
       if (distance > highScore) {
-        this.registry.set('highScore', distance);
+        this.registry.set("highScore", distance);
         this.highScoreText.setText(`High Score: ${distance}`);
       }
     }

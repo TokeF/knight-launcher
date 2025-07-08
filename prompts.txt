@@ -93,3 +93,21 @@ instead of using restitution for knight bounce, use setVelocity when collision w
 High Score Request (2025-07-08T09:09:41+02:00):
 
 In top right corner, add a high score, similar to the score text. It should dispolay the furthest the knight has travelled in any launch so far.
+
+---
+
+Enemy Knights Request (2025-07-08T09:21:43+02:00):
+
+I want to add enemy knights walking around at random on the ground. To begin with they can just be square boxes. They should walk some set distance, then randomly continue or turn around for a new distance. The step distance should be between 100 and 300 pixels.
+When the player knight collides with enemy knights, increase player velocity.
+- add 20 knights to begin with.
+- they should walk at a medium speed
+- x and y velocity should be multiplied by 1.2 (user said 1, interpreted as a boost)
+- to begin with, lets spawn enemies across entire game world
+
+---
+
+Refactor and Bugfix Request (2025-07-08T09:30:03+02:00):
+
+1. Refactor collision handling to use a single if/else if chain.
+2. Fix floating enemy knights; they should be locked to the ground and only move horizontally.
