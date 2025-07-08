@@ -130,3 +130,10 @@ enemy knights should start moving as soon as the scene is loaded. They should no
 Dynamic Object Loading (2025-07-08T10:11:33+02:00):
 
 To keep performance, I think we should update objects in the world dynamically, in a sliding window fashion. I suggest that we dynamically add objects as the player aproaches, and delete objects behind the player.
+
+---
+
+Seeded Dynamic Obstacles (2025-07-08T10:26:41+02:00):
+
+add 10 tents and 5 mudpits to the game. They should also be spawned dynamically similar to enemies. 
+Everytime the world resets we should have random seed value, the tent and mud x coordinate should depend on the seed value, such that they are spawned differently with each reset. Distance between obstacles should never be less than 50 pixels

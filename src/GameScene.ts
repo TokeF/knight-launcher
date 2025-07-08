@@ -1,9 +1,15 @@
 import Phaser from "phaser";
-
-const CAT_PLAYER = 1 << 0;
-const CAT_GROUND = 1 << 1;
-const CAT_OBSTACLE = 1 << 2;
-const CAT_ENEMY = 1 << 3;
+import {
+  CAT_ENEMY,
+  CAT_GROUND,
+  CAT_OBSTACLE,
+  CAT_PLAYER,
+  MAX_OBSTACLE_ATTEMPTS,
+  MIN_SPAWN_X,
+  SPAWN_MARGIN,
+  WORLD_HEIGHT,
+  WORLD_WIDTH,
+} from "./constants";
 
 export class GameScene extends Phaser.Scene {
   private knight!: Phaser.Physics.Matter.Sprite;
@@ -21,8 +27,16 @@ export class GameScene extends Phaser.Scene {
   private maxDistance = 0;
   private scoreText!: Phaser.GameObjects.Text;
   private highScoreText!: Phaser.GameObjects.Text;
+  private seed!: string;
   private enemyDefinitions: { x: number; y: number; isSpawned: boolean }[] = [];
+  private obstacleDefinitions: {
+    x: number;
+    y: number;
+    type: "tent" | "mud";
+    isSpawned: boolean;
+  }[] = [];
   private activeEnemies!: Phaser.GameObjects.Group;
+  private activeObstacles!: Phaser.GameObjects.Group;
   private resetText!: Phaser.GameObjects.Text;
 
   private launchAngleIndicator!: Phaser.GameObjects.Line;
@@ -36,6 +50,13 @@ export class GameScene extends Phaser.Scene {
 
   init() {
     this.registry.set("highScore", this.registry.get("highScore") || 0);
+
+    // Initialize with a new random seed for each game
+    this.seed = Phaser.Math.RND.uuid();
+    Phaser.Math.RND.sow([this.seed]);
+
+    this.enemyDefinitions = [];
+    this.obstacleDefinitions = [];
 
     this.launchAngle = -45;
     this.launchPower = 0;
@@ -64,20 +85,21 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
-    const worldWidth = 3200;
-    const worldHeight = 600;
+
 
     // Set camera and world bounds
-    this.cameras.main.setBounds(0, 0, worldWidth, worldHeight);
-    this.matter.world.setBounds(0, 0, 3200, 600);
+        this.cameras.main.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    this.matter.world.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
 
     this.initializeEnemyDefinitions();
+    this.initializeObstacleDefinitions();
     this.activeEnemies = this.add.group();
+    this.activeObstacles = this.add.group();
 
     this.cameras.main.setBackgroundColor("#3498db"); // Sky blue
 
     // Create a much longer ground
-    this.matter.add.rectangle(worldWidth / 2, 580, worldWidth, 40, {
+        this.matter.add.rectangle(WORLD_WIDTH / 2, 580, WORLD_WIDTH, 40, {
       isStatic: true,
       label: "ground",
       collisionFilter: { category: CAT_GROUND, mask: CAT_PLAYER },
@@ -94,20 +116,6 @@ export class GameScene extends Phaser.Scene {
 
     // Create an invisible follower game object for the camera to track
     this.knightFollower = this.add.zone(this.knight.x, this.knight.y, 30, 50);
-
-    // Add obstacles
-    this.matter.add.rectangle(1500, 555, 200, 10, {
-      isStatic: true,
-      label: "mud",
-      collisionFilter: { category: CAT_OBSTACLE, mask: CAT_PLAYER },
-      render: { fillColor: 0x654321 },
-    });
-    this.matter.add.rectangle(800, 540, 80, 80, {
-      isStatic: true,
-      label: "tent",
-      collisionFilter: { category: CAT_OBSTACLE, mask: CAT_PLAYER },
-      render: { fillColor: 0xffffff },
-    });
 
     this.launchAngleIndicator = this.add
       .line(this.ballista.x, this.ballista.y, 0, 0, 100, 0, 0xffffff)
@@ -159,7 +167,6 @@ export class GameScene extends Phaser.Scene {
 
     this.updateWorldObjects();
     this.updateEnemiesAI();
-    console.log(this.activeEnemies.getChildren().length);
     if (this.isKnightLaunched) {
       // Sync the invisible follower's position with the knight's physics body
       this.knightFollower.setPosition(this.knight.x, this.knight.y);
@@ -219,12 +226,67 @@ export class GameScene extends Phaser.Scene {
   }
 
   private initializeEnemyDefinitions() {
-    const worldWidth = 3200;
     const numEnemies = 20;
     for (let i = 0; i < numEnemies; i++) {
-      const x = Phaser.Math.Between(400, worldWidth - 100);
+            const x = Phaser.Math.Between(400, WORLD_WIDTH - 100);
       const y = 540; // Ground level
       this.enemyDefinitions.push({ x, y, isSpawned: false });
+    }
+  }
+
+  private initializeObstacleDefinitions() {
+    const worldWidth = 3200;
+    const minObstacleDistance = 150;
+    const obstaclePositions: number[] = [];
+
+    const generateObstaclePosition = () => {
+      let x;
+      let isValidPosition = false;
+      let attempts = 0;
+      const maxAttempts = MAX_OBSTACLE_ATTEMPTS; // Failsafe to prevent infinite loop
+
+      while (!isValidPosition && attempts < maxAttempts) {
+        x = Phaser.Math.RND.between(MIN_SPAWN_X, WORLD_WIDTH - SPAWN_MARGIN);
+        isValidPosition = true;
+        for (const pos of obstaclePositions) {
+          if (Math.abs(x - pos) < minObstacleDistance) {
+            isValidPosition = false;
+            break;
+          }
+        }
+        attempts++;
+      }
+
+      if (attempts >= maxAttempts) {
+        console.warn(
+          `Could not find a valid position for an obstacle after ${maxAttempts} attempts. Placing it anyway.`
+        );
+      }
+
+      obstaclePositions.push(x!);
+      return x!;
+    };
+
+    // 10 Tents
+    for (let i = 0; i < 10; i++) {
+      const x = generateObstaclePosition();
+      this.obstacleDefinitions.push({
+        x,
+        y: 540,
+        type: "tent",
+        isSpawned: false,
+      });
+    }
+
+    // 5 Mud Pits
+    for (let i = 0; i < 5; i++) {
+      const x = generateObstaclePosition();
+      this.obstacleDefinitions.push({
+        x,
+        y: 555,
+        type: "mud",
+        isSpawned: false,
+      });
     }
   }
 
@@ -260,6 +322,33 @@ export class GameScene extends Phaser.Scene {
         enemySprite.destroy();
       }
     });
+
+    // Spawn obstacles
+    this.obstacleDefinitions.forEach((def, index) => {
+      if (
+        !def.isSpawned &&
+        def.x < worldView.right + spawnMargin &&
+        def.x > worldView.left - spawnMargin
+      ) {
+        this.spawnObstacle(def, index);
+        this.obstacleDefinitions[index].isSpawned = true;
+      }
+    });
+
+    // Despawn obstacles
+    this.activeObstacles.getChildren().forEach((obstacle) => {
+      const obstacleSprite = obstacle as Phaser.GameObjects.Rectangle;
+      if (
+        obstacleSprite.x < worldView.left - despawnMargin ||
+        obstacleSprite.x > worldView.right + despawnMargin
+      ) {
+        const defIndex = obstacleSprite.getData("defIndex");
+        if (this.obstacleDefinitions[defIndex]) {
+          this.obstacleDefinitions[defIndex].isSpawned = false;
+        }
+        obstacleSprite.destroy();
+      }
+    });
   }
 
   private spawnEnemy(x: number, y: number, defIndex: number) {
@@ -286,6 +375,25 @@ export class GameScene extends Phaser.Scene {
       x + Phaser.Math.Between(100, 300) * enemy.getData("direction")
     );
     this.activeEnemies.add(enemy);
+  }
+
+  private spawnObstacle(
+    def: { x: number; y: number; type: "tent" | "mud" },
+    defIndex: number
+  ) {
+    const width = def.type === "tent" ? 80 : 200;
+    const height = def.type === "tent" ? 80 : 10;
+    const fillColor = def.type === "tent" ? 0xffffff : 0x654321;
+
+    const obstacle = this.add.rectangle(def.x, def.y, width, height, fillColor);
+    this.matter.add.gameObject(obstacle, {
+      isStatic: true,
+      label: def.type,
+      collisionFilter: { category: CAT_OBSTACLE, mask: CAT_PLAYER },
+    });
+
+    obstacle.setData("defIndex", defIndex);
+    this.activeObstacles.add(obstacle);
   }
 
   private updateEnemiesAI() {
