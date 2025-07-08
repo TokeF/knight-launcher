@@ -28,13 +28,12 @@ export class CollisionManager {
           : null;
       const otherBody = bodyA === knightBody ? bodyB : bodyA;
 
-      if (!knightBody || !otherBody.gameObject) {
+      if (!knightBody || !otherBody) {
         return;
       }
 
       const knight = this.playerManager.knight;
       const otherLabel = otherBody.label;
-
       switch (otherLabel) {
         case "ground":
           this.handleKnightGroundCollision(knight);
@@ -53,8 +52,9 @@ export class CollisionManager {
   }
 
   private handleKnightGroundCollision(knight: Phaser.Physics.Matter.Sprite) {
-    if (!knight.body) return;
+    if (!knight.body || !this.playerManager.isKnightLaunched) return;
     const velocity = knight.body.velocity;
+    console.log(velocity);
     if (velocity.y > 0.5) {
       knight.setVelocityY(-velocity.y * 0.8);
     }

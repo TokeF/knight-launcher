@@ -14,7 +14,7 @@ export class PlayerManager {
   private launchPower = 0;
   private readonly maxLaunchPower = 100;
   private isCharging = false;
-  private isKnightLaunched = false;
+  public isKnightLaunched = false;
   private isKnightStopped = false;
   private maxDistance = 0;
 

@@ -177,3 +177,9 @@ Shop Screen Request (2025-07-08T16:12:17+02:00):
 
 Alright now create a shop screen. When pressing the shop button open the shop screen. The shop should contain a list view of items. In the first column should be an image of the item, just add a placeholder for now. Second column should list which stats the item modifies e.g. speed, bounce, friction. Third column should contain a description of the item.
 Add 5 placeholder items.
+
+---
+
+Ground Collision Bug Fix (2025-07-08T17:10:21+02:00):
+
+User identified that the static ground body lacked a `gameObject` property, causing the collision check to fail. User fixed this by changing the check in `CollisionManager.ts` to `!otherBody` and added a guard to only handle ground collisions after the knight is launched.
