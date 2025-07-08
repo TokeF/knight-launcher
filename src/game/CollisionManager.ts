@@ -55,7 +55,7 @@ export class CollisionManager {
     if (!knight.body || !this.playerManager.isKnightLaunched) return;
     const velocity = knight.body.velocity;
     console.log(velocity);
-    if (velocity.y > 0.5) {
+    if (velocity.y > 1.5) {
       knight.setVelocityY(-velocity.y * 0.8);
     }
   }
