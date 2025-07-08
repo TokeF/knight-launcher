@@ -124,3 +124,9 @@ Enemy Interaction and Removal (2025-07-08T09:37:26+02:00):
 Enemy Movement Timing (2025-07-08T09:54:12+02:00):
 
 enemy knights should start moving as soon as the scene is loaded. They should not wait for player to be launched
+
+---
+
+Dynamic Object Loading (2025-07-08T10:11:33+02:00):
+
+To keep performance, I think we should update objects in the world dynamically, in a sliding window fashion. I suggest that we dynamically add objects as the player aproaches, and delete objects behind the player.

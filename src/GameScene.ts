@@ -21,7 +21,8 @@ export class GameScene extends Phaser.Scene {
   private maxDistance = 0;
   private scoreText!: Phaser.GameObjects.Text;
   private highScoreText!: Phaser.GameObjects.Text;
-  private enemyKnights!: Phaser.GameObjects.Group;
+  private enemyDefinitions: { x: number; y: number; isSpawned: boolean }[] = [];
+  private activeEnemies!: Phaser.GameObjects.Group;
   private resetText!: Phaser.GameObjects.Text;
 
   private launchAngleIndicator!: Phaser.GameObjects.Line;
@@ -70,7 +71,8 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.setBounds(0, 0, worldWidth, worldHeight);
     this.matter.world.setBounds(0, 0, 3200, 600);
 
-    this.createEnemyKnights();
+    this.initializeEnemyDefinitions();
+    this.activeEnemies = this.add.group();
 
     this.cameras.main.setBackgroundColor("#3498db"); // Sky blue
 
@@ -155,8 +157,9 @@ export class GameScene extends Phaser.Scene {
     this.handleInput();
     this.updateIndicators();
 
-    this.updateEnemies();
-
+    this.updateWorldObjects();
+    this.updateEnemiesAI();
+    console.log(this.activeEnemies.getChildren().length);
     if (this.isKnightLaunched) {
       // Sync the invisible follower's position with the knight's physics body
       this.knightFollower.setPosition(this.knight.x, this.knight.y);
@@ -215,39 +218,78 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  private createEnemyKnights() {
-    this.enemyKnights = this.add.group();
-
-    for (let i = 0; i < 20; i++) {
-      const x = Phaser.Math.Between(400, 3100);
-      // Spawn enemies on the ground (ground top is 560, enemy height is 40, so center is 540)
-      const enemy = this.matter.add.sprite(
-        x,
-        540,
-        "enemy_knight_texture",
-        undefined,
-        {
-          label: "enemy_knight",
-          friction: 1,
-          ignoreGravity: true,
-          collisionFilter: {
-            category: CAT_ENEMY,
-            mask: CAT_PLAYER, // Only collides with the player
-          },
-        }
-      );
-
-      const direction = Phaser.Math.RND.pick([-1, 1]);
-      const distance = Phaser.Math.Between(100, 300);
-      enemy.setData("direction", direction);
-      enemy.setData("moveUntilX", x + distance * direction);
-
-      this.enemyKnights.add(enemy);
+  private initializeEnemyDefinitions() {
+    const worldWidth = 3200;
+    const numEnemies = 20;
+    for (let i = 0; i < numEnemies; i++) {
+      const x = Phaser.Math.Between(400, worldWidth - 100);
+      const y = 540; // Ground level
+      this.enemyDefinitions.push({ x, y, isSpawned: false });
     }
   }
 
-  private updateEnemies() {
-    this.enemyKnights.getChildren().forEach((gameObject) => {
+  private updateWorldObjects() {
+    const camera = this.cameras.main;
+    const worldView = camera.worldView;
+    const spawnMargin = 500; // Distance ahead of the camera to spawn objects
+    const despawnMargin = 200; // Distance behind the camera to despawn objects
+
+    // Spawn enemies
+    this.enemyDefinitions.forEach((def, index) => {
+      if (
+        !def.isSpawned &&
+        def.x < worldView.right + spawnMargin &&
+        def.x > worldView.left - spawnMargin
+      ) {
+        this.spawnEnemy(def.x, def.y, index);
+        def.isSpawned = true;
+      }
+    });
+
+    // Despawn enemies
+    this.activeEnemies.getChildren().forEach((enemy) => {
+      const enemySprite = enemy as Phaser.Physics.Matter.Sprite;
+      if (
+        enemySprite.x < worldView.left - despawnMargin ||
+        enemySprite.x > worldView.right + despawnMargin
+      ) {
+        const defIndex = enemySprite.getData("defIndex");
+        if (this.enemyDefinitions[defIndex]) {
+          this.enemyDefinitions[defIndex].isSpawned = false;
+        }
+        enemySprite.destroy();
+      }
+    });
+  }
+
+  private spawnEnemy(x: number, y: number, defIndex: number) {
+    const enemy = this.matter.add.sprite(
+      x,
+      y,
+      "enemy_knight_texture",
+      undefined,
+      {
+        label: "enemy_knight",
+        friction: 1,
+        ignoreGravity: true,
+        collisionFilter: {
+          category: CAT_ENEMY,
+          mask: CAT_PLAYER,
+        },
+      }
+    );
+
+    enemy.setData("defIndex", defIndex);
+    enemy.setData("direction", Phaser.Math.RND.pick([-1, 1]));
+    enemy.setData(
+      "moveUntilX",
+      x + Phaser.Math.Between(100, 300) * enemy.getData("direction")
+    );
+    this.activeEnemies.add(enemy);
+  }
+
+  private updateEnemiesAI() {
+    this.activeEnemies.getChildren().forEach((gameObject) => {
       const enemy = gameObject as Phaser.Physics.Matter.Sprite;
       const speed = 1.5;
       const direction = enemy.getData("direction");
