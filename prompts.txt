@@ -208,3 +208,10 @@ there is an issue. The highscore is persisted during page refresh, however, when
 Pre-Game Navigation Request (2025-07-08T18:45:42+02:00):
 
 in the game scene, before the any key is pressed, show a shop and main menu button that will take you to the respective scene. When a keyboard input is pressed, remove the buttons.
+
+---
+
+Shop Purchasing System Request (2025-07-08T19:47:09+02:00):
+
+add a name and cost to the shop items, sort them according to increasing cost. 
+add a buy button next to each item. When purchasing an item, subtract the cost from the total coins and disable the buy button and replace the text with bought

@@ -2,9 +2,11 @@ export class PlayerData {
   private static instance: PlayerData;
   private coins: number;
   private highScore: number;
+  private purchasedItems: string[];
 
   private readonly COINS_STORAGE_KEY = 'knight-launcher-coins';
   private readonly HIGHSCORE_STORAGE_KEY = 'knight-launcher-highscore';
+  private readonly PURCHASED_ITEMS_STORAGE_KEY = 'knight-launcher-purchased-items';
 
   private constructor() {
     const savedCoins = localStorage.getItem(this.COINS_STORAGE_KEY);
@@ -12,6 +14,9 @@ export class PlayerData {
 
     const savedHighScore = localStorage.getItem(this.HIGHSCORE_STORAGE_KEY);
     this.highScore = savedHighScore ? parseInt(savedHighScore, 10) : 0;
+
+    const savedPurchasedItems = localStorage.getItem(this.PURCHASED_ITEMS_STORAGE_KEY);
+    this.purchasedItems = savedPurchasedItems ? JSON.parse(savedPurchasedItems) : [];
   }
 
   public static getInstance(): PlayerData {
@@ -58,5 +63,20 @@ export class PlayerData {
 
   private saveHighScore(): void {
     localStorage.setItem(this.HIGHSCORE_STORAGE_KEY, this.highScore.toString());
+  }
+
+  public hasPurchased(itemName: string): boolean {
+    return this.purchasedItems.includes(itemName);
+  }
+
+  public purchaseItem(itemName: string): void {
+    if (!this.hasPurchased(itemName)) {
+      this.purchasedItems.push(itemName);
+      this.savePurchasedItems();
+    }
+  }
+
+  private savePurchasedItems(): void {
+    localStorage.setItem(this.PURCHASED_ITEMS_STORAGE_KEY, JSON.stringify(this.purchasedItems));
   }
 }
