@@ -118,3 +118,9 @@ Enemy Interaction and Removal (2025-07-08T09:37:26+02:00):
 
 1. When an enemy knight is hit, remove it after the bounce effect is applied.
 2. Enemy knights should not interact with anything in the world, including gravity, except the player knight.
+
+---
+
+Enemy Movement Timing (2025-07-08T09:54:12+02:00):
+
+enemy knights should start moving as soon as the scene is loaded. They should not wait for player to be launched

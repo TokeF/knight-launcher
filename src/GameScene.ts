@@ -155,13 +155,14 @@ export class GameScene extends Phaser.Scene {
     this.handleInput();
     this.updateIndicators();
 
+    this.updateEnemies();
+
     if (this.isKnightLaunched) {
       // Sync the invisible follower's position with the knight's physics body
       this.knightFollower.setPosition(this.knight.x, this.knight.y);
 
       this.updateScore();
       this.checkKnightStatus();
-      this.updateEnemies();
     }
   }
 
@@ -188,11 +189,8 @@ export class GameScene extends Phaser.Scene {
           y: knightBody.velocity.y,
         });
       } else if (otherLabel === "tent") {
-        // Use setVelocity for a more direct and controllable bounce
-        this.matter.body.setVelocity(knightBody, {
-          x: knightBody.velocity.x * 1.8,
-          y: knightBody.velocity.y * -1.8,
-        });
+        // Add a constant velocity to boost even when player is slow
+        this.matter.body.setVelocity(knightBody, { x: 10, y: -15 });
       } else if (otherLabel === "ground") {
         // Apply a controlled bounce off the ground
         this.matter.body.setVelocity(knightBody, {
