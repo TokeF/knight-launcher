@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { UIManager } from "../ui/UIManager";
 import { CAT_ENEMY, CAT_GROUND, CAT_OBSTACLE, CAT_PLAYER } from "../constants";
+import { PlayerData } from "../data/PlayerData";
 
 export class PlayerManager {
   private scene: Phaser.Scene;
@@ -69,6 +70,7 @@ export class PlayerManager {
   private handleInput() {
     if (this.isKnightStopped) {
       if (Phaser.Input.Keyboard.JustDown(this.spacebar)) {
+        PlayerData.getInstance().addCoins(this.maxDistance);
         this.scene.scene.restart();
       }
       return;

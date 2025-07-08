@@ -183,3 +183,9 @@ Add 5 placeholder items.
 Ground Collision Bug Fix (2025-07-08T17:10:21+02:00):
 
 User identified that the static ground body lacked a `gameObject` property, causing the collision check to fail. User fixed this by changing the check in `CollisionManager.ts` to `!otherBody` and added a guard to only handle ground collisions after the knight is launched.
+
+---
+
+Coin System Request (2025-07-08T18:30:43+02:00):
+
+now lets add a coin system. the coins can be used to purchase items in the shop. Every score point is worth one coin, so with every reset, add the score as coins to the players wallet. The total amount of coins in the wallet should be displayed inside the shop
