@@ -98,6 +98,12 @@ In top right corner, add a high score, similar to the score text. It should disp
 
 Enemy Knights Request (2025-07-08T09:21:43+02:00):
 
+---
+
+Refactoring Request (2025-07-08T13:51:53+02:00):
+
+refactor and isolate logic and components to follow separation of concerns priciple, making the code more readable, maintanable and easier to extend
+
 I want to add enemy knights walking around at random on the ground. To begin with they can just be square boxes. They should walk some set distance, then randomly continue or turn around for a new distance. The step distance should be between 100 and 300 pixels.
 When the player knight collides with enemy knights, increase player velocity.
 - add 20 knights to begin with.
@@ -137,3 +143,10 @@ Seeded Dynamic Obstacles (2025-07-08T10:26:41+02:00):
 
 add 10 tents and 5 mudpits to the game. They should also be spawned dynamically similar to enemies. 
 Everytime the world resets we should have random seed value, the tent and mud x coordinate should depend on the seed value, such that they are spawned differently with each reset. Distance between obstacles should never be less than 50 pixels
+
+---
+
+Refactor Bugs (2025-07-08T14:46:15+02:00):
+
+after the refactor, the reset functionality is not working
+furthermore, the player sprite is gone
