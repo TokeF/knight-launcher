@@ -1,23 +1,36 @@
 export class PlayerData {
   private static instance: PlayerData;
-  private coins: number;
-  private highScore: number;
-  private purchasedItems: string[];
-
+  private coins: number = 0;
+  private highScore: number = 0;
+  private purchasedItems: Set<string> = new Set();
+  private static readonly PURCHASED_ITEMS_KEY = "purchasedItems";
   private readonly COINS_STORAGE_KEY = 'knight-launcher-coins';
   private readonly HIGHSCORE_STORAGE_KEY = 'knight-launcher-highscore';
   private readonly PURCHASED_ITEMS_STORAGE_KEY = 'knight-launcher-purchased-items';
 
   private constructor() {
+    this.loadCoins();
+    this.loadHighScore();
+    this.loadPurchasedItems();
+  }
+
+  private loadCoins() {
     const savedCoins = localStorage.getItem(this.COINS_STORAGE_KEY);
     this.coins = savedCoins ? parseInt(savedCoins, 10) : 0;
+  }
 
+  private loadHighScore() {
     const savedHighScore = localStorage.getItem(this.HIGHSCORE_STORAGE_KEY);
     this.highScore = savedHighScore ? parseInt(savedHighScore, 10) : 0;
-
-    const savedPurchasedItems = localStorage.getItem(this.PURCHASED_ITEMS_STORAGE_KEY);
-    this.purchasedItems = savedPurchasedItems ? JSON.parse(savedPurchasedItems) : [];
   }
+
+  private loadPurchasedItems() {
+    const savedPurchasedItems = localStorage.getItem(this.PURCHASED_ITEMS_STORAGE_KEY);
+    this.purchasedItems = savedPurchasedItems ? new Set(JSON.parse(savedPurchasedItems)) : new Set();
+  }
+
+
+
 
   public static getInstance(): PlayerData {
     if (!PlayerData.instance) {
@@ -65,14 +78,14 @@ export class PlayerData {
     localStorage.setItem(this.HIGHSCORE_STORAGE_KEY, this.highScore.toString());
   }
 
-  public hasPurchased(itemName: string): boolean {
-    return this.purchasedItems.includes(itemName);
+  public hasPurchased(item: string): boolean {
+    return this.purchasedItems.has(item);
   }
 
-  public purchaseItem(itemName: string): void {
-    if (!this.hasPurchased(itemName)) {
-      this.purchasedItems.push(itemName);
-      this.savePurchasedItems();
+  public purchaseItem(item: string): void {
+    if (!this.purchasedItems.has(item)) {
+      this.purchasedItems.add(item);
+      localStorage.setItem(this.PURCHASED_ITEMS_STORAGE_KEY, JSON.stringify(Array.from(this.purchasedItems)));
     }
   }
 

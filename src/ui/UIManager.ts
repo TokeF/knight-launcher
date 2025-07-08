@@ -11,12 +11,28 @@ export class UIManager {
   private mainMenuButton!: Phaser.GameObjects.Text;
   private shopButton!: Phaser.GameObjects.Text;
 
+  private smashShieldText!: Phaser.GameObjects.Text;
+
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
     this.createUI();
   }
 
   private createUI() {
+    // Smash Shield indicator (initially hidden)
+    this.smashShieldText = this.scene.add.text(
+      16,
+      60,
+      'Shield smashes x10',
+      {
+        fontSize: '28px',
+        color: '#00ffff',
+        fontStyle: 'bold',
+        stroke: '#003355',
+        strokeThickness: 4,
+      }
+    ).setOrigin(0, 0).setScrollFactor(0).setVisible(false);
+
     // Score and High Score Text
     this.scoreText = this.scene.add
       .text(16, 16, 'Distance: 0', {
@@ -102,5 +118,14 @@ export class UIManager {
   public hideLaunchIndicators() {
     this.launchAngleIndicator.setVisible(false);
     this.powerIndicator.clear();
+  }
+
+  public showSmashShieldIndicator(count: number) {
+    this.smashShieldText.setText(`Shield smashes x${count}`);
+    this.smashShieldText.setVisible(true);
+  }
+
+  public hideSmashShieldIndicator() {
+    this.smashShieldText.setVisible(false);
   }
 }

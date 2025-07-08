@@ -239,3 +239,21 @@ the scroll buttons are not working, the view is not scrolled
 Shop Top Padding Request (2025-07-08T20:08:46+02:00):
 
 perfect, however the first item name is not visible, it appears to be outside the scroll view. Consider adding some padding in the top
+
+---
+
+Shop Modifier Request (2025-07-08T20:14:26+02:00):
+
+we need a way to handle item modifiers. Add a new item to the shop "Smash Shield". When equiped, it grants the ability to boost y direction speed significantly when pressing spacebar after a launch.
+
+---
+
+Remove Equip Logic Request (2025-07-08T20:19:39+02:00):
+
+simplify the code by removing the equip logic. Once an item is bought, it can always be considered equiped.
+
+---
+
+Smash Shield x10 Request (2025-07-08T20:22:20+02:00):
+
+change the smash shield to have 10 smashes. The text stating smash is ready should instead read: Shield smashes x10, decrease the number with each use. Place the text left side below the score

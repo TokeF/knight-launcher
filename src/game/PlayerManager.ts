@@ -23,6 +23,9 @@ export class PlayerManager {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private spacebar!: Phaser.Input.Keyboard.Key;
 
+  // Smash Shield modifier
+  private smashShieldCount: number = 0; // Number of shield smashes left this launch
+
   constructor(scene: Phaser.Scene, uiManager: UIManager) {
     this.scene = scene;
     this.uiManager = uiManager;
@@ -62,15 +65,38 @@ export class PlayerManager {
     this.updateIndicators();
 
     if (this.isKnightLaunched) {
+      // Smash Shield indicator logic
+      if (!this.isKnightStopped && PlayerData.getInstance().hasPurchased("Smash Shield") && this.smashShieldCount > 0) {
+        this.uiManager.showSmashShieldIndicator(this.smashShieldCount);
+      } else {
+        this.uiManager.hideSmashShieldIndicator();
+      }
       this.knightFollower.setPosition(this.knight.x, this.knight.y);
       this.updateScore();
       this.checkKnightStatus();
+    } else {
+      this.uiManager.hideSmashShieldIndicator();
     }
   }
 
   private handleInput() {
     if (!this.isGameStarted) {
       return;
+    }
+
+    // Smash Shield boost logic after launch
+    if (this.isKnightLaunched && !this.isKnightStopped && PlayerData.getInstance().hasPurchased("Smash Shield") && this.smashShieldCount > 0) {
+      if (Phaser.Input.Keyboard.JustDown(this.spacebar)) {
+        // Apply a strong downward velocity boost
+        this.knight.setVelocityY(20);
+        this.smashShieldCount--;
+        if (this.smashShieldCount > 0) {
+          this.uiManager.showSmashShieldIndicator(this.smashShieldCount);
+        } else {
+          this.uiManager.hideSmashShieldIndicator();
+        }
+        return;
+      }
     }
 
     if (this.isKnightStopped) {
@@ -102,6 +128,8 @@ export class PlayerManager {
   private launchKnight() {
     this.isCharging = false;
     this.isKnightLaunched = true;
+    // Reset shield smashes on launch
+    this.smashShieldCount = PlayerData.getInstance().hasPurchased("Smash Shield") ? 10 : 0;
 
     const angleRad = Phaser.Math.DegToRad(this.launchAngle);
     const power = this.launchPower / 4;
@@ -131,6 +159,8 @@ export class PlayerManager {
 
     if (speed < velocityThreshold) {
       this.isKnightStopped = true;
+      this.smashShieldCount = 0;
+      this.uiManager.hideSmashShieldIndicator();
       this.uiManager.showResetText();
     }
   }
