@@ -8,6 +8,8 @@ export class UIManager {
   private launchAngleIndicator!: Phaser.GameObjects.Line;
   private powerIndicator!: Phaser.GameObjects.Graphics;
   private resetText!: Phaser.GameObjects.Text;
+  private mainMenuButton!: Phaser.GameObjects.Text;
+  private shopButton!: Phaser.GameObjects.Text;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -47,6 +49,24 @@ export class UIManager {
       .line(100, 540, 0, 0, 100, 0, 0xffffff)
       .setOrigin(0, 0.5);
     this.powerIndicator = this.scene.add.graphics();
+
+    // Pre-game buttons
+    this.mainMenuButton = this.scene.add.text(this.scene.cameras.main.width / 2, 250, 'Main Menu', {
+      fontSize: '48px',
+      color: '#fff',
+    }).setOrigin(0.5).setInteractive().setScrollFactor(0);
+    this.mainMenuButton.on('pointerdown', () => this.scene.scene.start('MainMenuScene'));
+
+    this.shopButton = this.scene.add.text(this.scene.cameras.main.width / 2, 350, 'Shop', {
+      fontSize: '48px',
+      color: '#ff0',
+    }).setOrigin(0.5).setInteractive().setScrollFactor(0);
+    this.shopButton.on('pointerdown', () => this.scene.scene.start('ShopScene'));
+  }
+
+  public hidePreGameButtons() {
+    this.mainMenuButton.setVisible(false);
+    this.shopButton.setVisible(false);
   }
 
   public updateScore(distance: number) {

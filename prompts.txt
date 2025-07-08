@@ -202,3 +202,9 @@ High Score and UI Update Request (2025-07-08T18:38:12+02:00):
 High Score Bug Report (2025-07-08T18:41:33+02:00):
 
 there is an issue. The highscore is persisted during page refresh, however, when the player is launched it is set to 0. Instead we should load the highscore from local storage and only update it when current score becomes greater than highscore. If there is no highscore in localstorage, initialize it to 0.
+
+---
+
+Pre-Game Navigation Request (2025-07-08T18:45:42+02:00):
+
+in the game scene, before the any key is pressed, show a shop and main menu button that will take you to the respective scene. When a keyboard input is pressed, remove the buttons.

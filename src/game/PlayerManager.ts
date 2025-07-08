@@ -17,6 +17,7 @@ export class PlayerManager {
   private isCharging = false;
   public isKnightLaunched = false;
   private isKnightStopped = false;
+  public isGameStarted = false;
   private maxDistance = 0;
 
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -68,6 +69,10 @@ export class PlayerManager {
   }
 
   private handleInput() {
+    if (!this.isGameStarted) {
+      return;
+    }
+
     if (this.isKnightStopped) {
       if (Phaser.Input.Keyboard.JustDown(this.spacebar)) {
         PlayerData.getInstance().addCoins(this.maxDistance);
