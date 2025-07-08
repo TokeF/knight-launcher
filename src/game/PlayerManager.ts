@@ -97,13 +97,11 @@ export class PlayerManager {
     this.isKnightLaunched = true;
 
     const angleRad = Phaser.Math.DegToRad(this.launchAngle);
-    const power = this.launchPower / 10;
+    const power = this.launchPower / 4;
     const velocityX = power * Math.cos(angleRad);
     const velocityY = power * Math.sin(angleRad);
 
     this.knight.setVelocity(velocityX, velocityY);
-
-
   }
 
   private updateScore() {
@@ -144,6 +142,4 @@ export class PlayerManager {
       this.ballista.y
     );
   }
-
-
 }

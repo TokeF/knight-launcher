@@ -1,6 +1,6 @@
-import Phaser from 'phaser';
-import { PlayerManager } from './PlayerManager';
-import { GameObjectManager } from './GameObjectManager';
+import Phaser from "phaser";
+import { PlayerManager } from "./PlayerManager";
+import { GameObjectManager } from "./GameObjectManager";
 
 export class CollisionManager {
   private playerManager: PlayerManager;
@@ -8,17 +8,24 @@ export class CollisionManager {
 
   constructor(
     playerManager: PlayerManager,
-    gameObjectManager: GameObjectManager,
+    gameObjectManager: GameObjectManager
   ) {
     this.playerManager = playerManager;
     this.gameObjectManager = gameObjectManager;
   }
 
-  public handleCollision(event: Phaser.Physics.Matter.Events.CollisionStartEvent) {
+  public handleCollision(
+    event: Phaser.Physics.Matter.Events.CollisionStartEvent
+  ) {
     event.pairs.forEach((pair) => {
       const { bodyA, bodyB } = pair;
 
-      const knightBody = bodyA.label === 'knight' ? bodyA : bodyB.label === 'knight' ? bodyB : null;
+      const knightBody =
+        bodyA.label === "knight"
+          ? bodyA
+          : bodyB.label === "knight"
+          ? bodyB
+          : null;
       const otherBody = bodyA === knightBody ? bodyB : bodyA;
 
       if (!knightBody || !otherBody.gameObject) {
@@ -29,16 +36,16 @@ export class CollisionManager {
       const otherLabel = otherBody.label;
 
       switch (otherLabel) {
-        case 'ground':
+        case "ground":
           this.handleKnightGroundCollision(knight);
           break;
-        case 'tent':
+        case "tent":
           this.handleKnightTentCollision(knight);
           break;
-        case 'mud':
+        case "mud":
           this.handleKnightMudCollision(knight);
           break;
-        case 'enemy_knight':
+        case "enemy_knight":
           this.handleKnightEnemyCollision(knight, otherBody);
           break;
       }
@@ -49,7 +56,7 @@ export class CollisionManager {
     if (!knight.body) return;
     const velocity = knight.body.velocity;
     if (velocity.y > 0.5) {
-      knight.setVelocityY(-velocity.y * 0.6);
+      knight.setVelocityY(-velocity.y * 0.8);
     }
   }
 
@@ -57,23 +64,30 @@ export class CollisionManager {
     if (!knight.body) return;
     const boost = 1.5;
     const velocity = knight.body.velocity;
-    knight.setVelocity(velocity.x * boost, -Math.abs(velocity.y * boost));
+    let xVelocity = Math.max(Math.abs(velocity.x * boost), 10);
+    let yVelocity = Math.max(Math.abs(velocity.y * boost), 15);
+    knight.setVelocity(xVelocity, -yVelocity);
   }
 
   private handleKnightMudCollision(knight: Phaser.Physics.Matter.Sprite) {
     if (!knight.body) return;
     const slowFactor = 0.3;
-    knight.setVelocity(knight.body.velocity.x * slowFactor, 0);
+    knight.setVelocity(
+      knight.body.velocity.x * slowFactor,
+      knight.body.velocity.y * slowFactor
+    );
   }
 
-  private handleKnightEnemyCollision(knight: Phaser.Physics.Matter.Sprite, enemyBody: MatterJS.BodyType) {
+  private handleKnightEnemyCollision(
+    knight: Phaser.Physics.Matter.Sprite,
+    enemyBody: MatterJS.BodyType
+  ) {
     if (!knight.body) return;
-    const boost = 1.2;
+    const boost = 1.4;
     const velocity = knight.body.velocity;
-    knight.setVelocity(velocity.x * boost, velocity.y * boost);
+    knight.setVelocity(velocity.x * boost, -Math.abs(velocity.y * boost));
     if (enemyBody.gameObject) {
       this.gameObjectManager.removeEnemy(enemyBody.gameObject);
     }
   }
 }
-
