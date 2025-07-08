@@ -81,11 +81,11 @@ export class ShopScene extends Phaser.Scene {
     // Display player's coins
     const coins = PlayerData.getInstance().getCoins();
     this.add
-      .text(this.cameras.main.width / 2, 100, `Coins: ${coins}`, {
+      .text(this.cameras.main.width - 20, 20, `Coins: ${coins}`, {
         fontSize: "32px",
         color: "#ffd700",
       })
-      .setOrigin(0.5);
+      .setOrigin(1, 0);
 
     const backButton = this.add
       .text(

@@ -1,12 +1,13 @@
 import Phaser from 'phaser';
+import { PlayerData } from '../data/PlayerData';
 
 export class UIManager {
   private scene: Phaser.Scene;
   private scoreText!: Phaser.GameObjects.Text;
   private highScoreText!: Phaser.GameObjects.Text;
-  private resetText!: Phaser.GameObjects.Text;
   private launchAngleIndicator!: Phaser.GameObjects.Line;
   private powerIndicator!: Phaser.GameObjects.Graphics;
+  private resetText!: Phaser.GameObjects.Text;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -22,11 +23,11 @@ export class UIManager {
       })
       .setScrollFactor(0);
 
-    const highScore = this.scene.registry.get('highScore') || 0;
+    const highScore = PlayerData.getInstance().getHighScore();
     this.highScoreText = this.scene.add
       .text(784, 16, `High Score: ${highScore}`, {
         fontSize: '32px',
-        color: '#fff',
+        color: '#ffd700',
       })
       .setOrigin(1, 0)
       .setScrollFactor(0);
@@ -50,9 +51,8 @@ export class UIManager {
 
   public updateScore(distance: number) {
     this.scoreText.setText(`Distance: ${distance}`);
-    const currentHighScore = this.scene.registry.get('highScore');
+    const currentHighScore = PlayerData.getInstance().getHighScore();
     if (distance > currentHighScore) {
-      this.scene.registry.set('highScore', distance);
       this.highScoreText.setText(`High Score: ${distance}`);
     }
   }

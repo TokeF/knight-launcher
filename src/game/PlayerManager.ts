@@ -111,6 +111,7 @@ export class PlayerManager {
     if (distance > this.maxDistance) {
       this.maxDistance = distance;
       this.uiManager.updateScore(distance);
+      PlayerData.getInstance().updateHighScore(this.maxDistance);
     }
   }
 

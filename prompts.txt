@@ -189,3 +189,16 @@ User identified that the static ground body lacked a `gameObject` property, caus
 Coin System Request (2025-07-08T18:30:43+02:00):
 
 now lets add a coin system. the coins can be used to purchase items in the shop. Every score point is worth one coin, so with every reset, add the score as coins to the players wallet. The total amount of coins in the wallet should be displayed inside the shop
+
+---
+
+High Score and UI Update Request (2025-07-08T18:38:12+02:00):
+
+- in the shop, the amount of coins should be displayed in the top right corner.
+- we should also store the highscore in localStorage and update it whenever we beat it
+
+---
+
+High Score Bug Report (2025-07-08T18:41:33+02:00):
+
+there is an issue. The highscore is persisted during page refresh, however, when the player is launched it is set to 0. Instead we should load the highscore from local storage and only update it when current score becomes greater than highscore. If there is no highscore in localstorage, initialize it to 0.
