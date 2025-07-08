@@ -215,3 +215,27 @@ Shop Purchasing System Request (2025-07-08T19:47:09+02:00):
 
 add a name and cost to the shop items, sort them according to increasing cost. 
 add a buy button next to each item. When purchasing an item, subtract the cost from the total coins and disable the buy button and replace the text with bought
+
+---
+
+Scrollable Shop Request (2025-07-08T19:52:38+02:00):
+
+Great. The items in the shop should be paginated or contained within a scrollview, such that many items does not overflow screen boundaries
+
+---
+
+Shop Scroll Buttons Request (2025-07-08T20:03:51+02:00):
+
+in the shop make room for two buttons, an up and down arrow, that can be pressed to scroll the item view
+
+---
+
+Scroll Button Bug Report (2025-07-08T20:07:03+02:00):
+
+the scroll buttons are not working, the view is not scrolled
+
+---
+
+Shop Top Padding Request (2025-07-08T20:08:46+02:00):
+
+perfect, however the first item name is not visible, it appears to be outside the scroll view. Consider adding some padding in the top

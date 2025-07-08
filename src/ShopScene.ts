@@ -80,16 +80,24 @@ export class ShopScene extends Phaser.Scene {
       })
       .setOrigin(1, 0);
 
-    let yPos = 150;
-    this.items.forEach((item) => {
-      this.add.image(100, yPos, item.imageKey);
-      this.add.text(200, yPos - 30, item.name, { fontSize: "28px", color: "#fff" });
-      this.add.text(200, yPos, item.stats, { fontSize: "24px", color: "#0f0" });
-      this.add.text(200, yPos + 25, item.description, { fontSize: "18px", color: "#fff", wordWrap: { width: 400 } });
+    // --- Scrollable Panel --- 
+    const scrollAreaY = 120;
+    const scrollAreaHeight = 420;
+    const itemsContainer = this.add.container(0, 0);
 
-      // Cost and Buy Button
-      this.add.text(600, yPos - 15, `Cost: ${item.cost}`, { fontSize: "24px", color: "#ffd700" });
-      const buyButton = this.add.text(600, yPos + 15, 'Buy', { fontSize: "28px", color: "#0f0", backgroundColor: "#555" }).setPadding(10).setInteractive();
+    let yPos = 50; // Start y position within the container, with padding
+    this.items.forEach((item) => {
+      const itemGroup = this.add.container(0, yPos);
+
+      const image = this.add.image(100, 0, item.imageKey).setOrigin(0.5, 0.5);
+      const name = this.add.text(200, -35, item.name, { fontSize: "28px", color: "#fff" });
+      const stats = this.add.text(200, -5, item.stats, { fontSize: "24px", color: "#0f0" });
+      const desc = this.add.text(200, 20, item.description, { fontSize: "18px", color: "#fff", wordWrap: { width: 350 } });
+      const cost = this.add.text(650, -15, `Cost: ${item.cost}`, { fontSize: "24px", color: "#ffd700" }).setOrigin(0.5, 0);
+      const buyButton = this.add.text(650, 15, 'Buy', { fontSize: "28px", color: "#0f0", backgroundColor: "#555" }).setOrigin(0.5, 0).setPadding(10).setInteractive();
+
+      itemGroup.add([image, name, stats, desc, cost, buyButton]);
+      itemsContainer.add(itemGroup);
 
       if (playerData.hasPurchased(item.name)) {
         buyButton.setText('Bought').disableInteractive().setBackgroundColor("#333").setColor("#888");
@@ -102,8 +110,60 @@ export class ShopScene extends Phaser.Scene {
           }
         });
       }
-
       yPos += 100;
+    });
+
+    const totalHeight = yPos;
+    itemsContainer.setSize(this.cameras.main.width, totalHeight);
+    itemsContainer.setPosition(0, scrollAreaY);
+
+    const maskShape = this.make.graphics();
+    maskShape.fillStyle(0xffffff);
+    maskShape.fillRect(0, scrollAreaY, this.cameras.main.width, scrollAreaHeight);
+    itemsContainer.mask = new Phaser.Display.Masks.GeometryMask(this, maskShape);
+
+    const maxScroll = 0;
+    const minScroll = -(itemsContainer.height - scrollAreaHeight) + (itemsContainer.height > scrollAreaHeight ? 20 : 0);
+
+    // --- Scrollbar ---
+    const scrollbar = this.add.graphics();
+    const scrollbarHeight = scrollAreaHeight * (scrollAreaHeight / itemsContainer.height);
+    const updateScrollbar = () => {
+      if (itemsContainer.height <= scrollAreaHeight) return;
+      const scrollPercentage = (itemsContainer.y - (minScroll + scrollAreaY)) / ((maxScroll + scrollAreaY) - (minScroll + scrollAreaY));
+      const scrollbarY = scrollAreaY + (scrollAreaHeight - scrollbarHeight) * (1 - scrollPercentage);
+      scrollbar.clear().fillStyle(0x888888, 0.8).fillRect(780, scrollbarY, 8, scrollbarHeight);
+    };
+
+    this.input.on('wheel', (_pointer: any, _gameObjects: any, _deltaX: any, deltaY: any) => {
+      if (itemsContainer.height > scrollAreaHeight) {
+        let newY = itemsContainer.y - deltaY * 0.5;
+        itemsContainer.y = Phaser.Math.Clamp(newY, minScroll + scrollAreaY, maxScroll + scrollAreaY);
+        updateScrollbar();
+      }
+    });
+
+    updateScrollbar();
+
+    // --- Scroll Buttons ---
+    const scrollStep = 40;
+    const upButton = this.add.text(750, scrollAreaY, '▲', { fontSize: '48px', color: '#fff' }).setOrigin(0.5, 0).setInteractive();
+    const downButton = this.add.text(750, scrollAreaY + scrollAreaHeight, '▼', { fontSize: '48px', color: '#fff' }).setOrigin(0.5, 1).setInteractive();
+
+    upButton.on('pointerdown', () => {
+        if (itemsContainer.height > scrollAreaHeight) {
+            let newY = itemsContainer.y + scrollStep;
+            itemsContainer.y = Phaser.Math.Clamp(newY, minScroll + scrollAreaY, maxScroll + scrollAreaY);
+            updateScrollbar();
+        }
+    });
+
+    downButton.on('pointerdown', () => {
+        if (itemsContainer.height > scrollAreaHeight) {
+            let newY = itemsContainer.y - scrollStep;
+            itemsContainer.y = Phaser.Math.Clamp(newY, minScroll + scrollAreaY, maxScroll + scrollAreaY);
+            updateScrollbar();
+        }
     });
 
     const backButton = this.add
