@@ -15,6 +15,7 @@ export class GameScene extends Phaser.Scene {
 
   private maxDistance = 0;
   private scoreText!: Phaser.GameObjects.Text;
+  private highScoreText!: Phaser.GameObjects.Text;
   private resetText!: Phaser.GameObjects.Text;
 
   private launchAngleIndicator!: Phaser.GameObjects.Line;
@@ -27,6 +28,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   init() {
+    this.registry.set('highScore', this.registry.get('highScore') || 0);
+
     this.launchAngle = -45;
     this.launchPower = 0;
     this.isCharging = false;
@@ -98,6 +101,17 @@ export class GameScene extends Phaser.Scene {
         color: "#fff",
       })
       .setScrollFactor(0); // Fix to camera
+
+    const highScore = this.registry.get('highScore');
+    this.highScoreText = this.add
+      .text(784, 16, `High Score: ${highScore}`,
+        {
+          fontSize: "32px",
+          color: "#fff",
+        }
+      )
+      .setOrigin(1, 0)
+      .setScrollFactor(0);
 
     this.resetText = this.add
       .text(400, 300, "Press Space to Reset", {
@@ -223,6 +237,12 @@ export class GameScene extends Phaser.Scene {
     if (distance > this.maxDistance) {
       this.maxDistance = distance;
       this.scoreText.setText(`Distance: ${distance}`);
+
+      const highScore = this.registry.get('highScore');
+      if (distance > highScore) {
+        this.registry.set('highScore', distance);
+        this.highScoreText.setText(`High Score: ${distance}`);
+      }
     }
   }
 

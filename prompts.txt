@@ -87,3 +87,9 @@ Generate a pixel art sprite for the knight character, and use it instead of the 
 Manual Ground Bounce (2025-07-08T09:03:10+02:00):
 
 instead of using restitution for knight bounce, use setVelocity when collision with ground, similar to how tent and mud collission is hanfled
+
+---
+
+High Score Request (2025-07-08T09:09:41+02:00):
+
+In top right corner, add a high score, similar to the score text. It should dispolay the furthest the knight has travelled in any launch so far.
