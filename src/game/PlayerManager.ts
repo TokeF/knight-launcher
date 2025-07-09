@@ -66,7 +66,11 @@ export class PlayerManager {
 
     if (this.isKnightLaunched) {
       // Smash Shield indicator logic
-      if (!this.isKnightStopped && PlayerData.getInstance().hasPurchased("Smash Shield") && this.smashShieldCount > 0) {
+      if (
+        !this.isKnightStopped &&
+        PlayerData.getInstance().hasPurchased("Smash Shield") &&
+        this.smashShieldCount > 0
+      ) {
         this.uiManager.showSmashShieldIndicator(this.smashShieldCount);
       } else {
         this.uiManager.hideSmashShieldIndicator();
@@ -85,7 +89,12 @@ export class PlayerManager {
     }
 
     // Smash Shield boost logic after launch
-    if (this.isKnightLaunched && !this.isKnightStopped && PlayerData.getInstance().hasPurchased("Smash Shield") && this.smashShieldCount > 0) {
+    if (
+      this.isKnightLaunched &&
+      !this.isKnightStopped &&
+      PlayerData.getInstance().hasPurchased("Smash Shield") &&
+      this.smashShieldCount > 0
+    ) {
       if (Phaser.Input.Keyboard.JustDown(this.spacebar)) {
         // Apply a strong downward velocity boost
         this.knight.setVelocityY(20);
@@ -129,7 +138,11 @@ export class PlayerManager {
     this.isCharging = false;
     this.isKnightLaunched = true;
     // Reset shield smashes on launch
-    this.smashShieldCount = PlayerData.getInstance().hasPurchased("Smash Shield") ? 10 : 0;
+    this.smashShieldCount = PlayerData.getInstance().hasPurchased(
+      "Smash Shield"
+    )
+      ? 10
+      : 0;
 
     const angleRad = Phaser.Math.DegToRad(this.launchAngle);
     const power = this.launchPower / 4;
