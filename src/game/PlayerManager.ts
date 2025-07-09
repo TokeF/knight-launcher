@@ -40,6 +40,7 @@ export class PlayerManager {
       label: "knight",
       restitution: 0.5,
       friction: 0.01,
+      frictionAir: 0.005, // Lower value for reduced air friction
       collisionFilter: {
         category: CAT_PLAYER,
         mask: CAT_GROUND | CAT_OBSTACLE | CAT_ENEMY,
