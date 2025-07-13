@@ -4,12 +4,17 @@ import { UIManager } from "./ui/UIManager";
 import { GameObjectManager } from "./game/GameObjectManager";
 import { CollisionManager } from "./game/CollisionManager";
 import { PlayerManager } from "./game/PlayerManager";
+import { ParallaxLayer } from "./layers/ParallaxLayer";
 
 export class GameScene extends Phaser.Scene {
   private uiManager!: UIManager;
   private playerManager!: PlayerManager;
   private gameObjectManager!: GameObjectManager;
   private collisionManager!: CollisionManager;
+
+  private backgroundLayer!: ParallaxLayer;
+  private middlegroundLayer!: ParallaxLayer;
+  private foregroundLayer!: ParallaxLayer;
 
   private seed!: string;
 
@@ -32,6 +37,14 @@ export class GameScene extends Phaser.Scene {
     this.load.image("knight", "assets/knight.png");
     this.load.image("tent", "assets/tent.png");
 
+    // Background images
+    this.load.image("back1", "assets/background/back1.jpeg");
+    this.load.image("back2", "assets/background/back2.jpeg");
+    // Middleground
+    this.load.image("middle", "assets/middleground/middle.png");
+    // Foreground
+    this.load.image("grass", "assets/foreground/grass.png");
+
     const graphics = this.add.graphics();
     graphics.fillStyle(0xffffff, 1);
     graphics.fillRect(0, 0, 20, 40);
@@ -43,6 +56,38 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
     this.matter.world.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
     this.cameras.main.setBackgroundColor("#3498db");
+
+    // Parallax layers
+    this.backgroundLayer = new ParallaxLayer({
+      scene: this,
+      imageKeys: ["back1", "back2"],
+      scrollFactor: 1.3,
+      y: 600,
+      tileWidth: 512,
+      tileHeight: 300,
+      worldWidth: WORLD_WIDTH,
+      depth: -10,
+    });
+    this.middlegroundLayer = new ParallaxLayer({
+      scene: this,
+      imageKeys: ["middle"],
+      scrollFactor: 1.1,
+      y: 600,
+      tileWidth: 512,
+      tileHeight: 200,
+      worldWidth: WORLD_WIDTH,
+      depth: -9,
+    });
+    this.foregroundLayer = new ParallaxLayer({
+      scene: this,
+      imageKeys: ["grass"],
+      scrollFactor: 0.9,
+      y: 600,
+      tileWidth: 512,
+      tileHeight: 100,
+      worldWidth: WORLD_WIDTH,
+      depth: -8,
+    });
 
     this.matter.add.rectangle(WORLD_WIDTH / 2, 580, WORLD_WIDTH, 40, {
       isStatic: true,
@@ -78,6 +123,11 @@ export class GameScene extends Phaser.Scene {
   }
 
   update() {
+    // Update parallax layers first
+    this.backgroundLayer.update(this.cameras.main);
+    this.middlegroundLayer.update(this.cameras.main);
+    this.foregroundLayer.update(this.cameras.main);
+
     this.playerManager.update();
     this.gameObjectManager.update(this.cameras.main);
   }
