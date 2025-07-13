@@ -45,6 +45,12 @@ export class GameScene extends Phaser.Scene {
     // Foreground
     this.load.image("grass", "assets/foreground/grass.png");
 
+    // Enemy knight walk animation
+    this.load.spritesheet('enemy_knight_walk', 'assets/enemy_knight_walk.png', {
+      frameWidth: 42,
+      frameHeight: 42,
+    });
+
     const graphics = this.add.graphics();
     graphics.fillStyle(0xffffff, 1);
     graphics.fillRect(0, 0, 20, 40);
@@ -94,6 +100,16 @@ export class GameScene extends Phaser.Scene {
       label: "ground",
       collisionFilter: { category: CAT_GROUND, mask: CAT_PLAYER },
     });
+
+    // Enemy knight walk animation
+    if (!this.anims.exists('enemy_knight_walk')) {
+      this.anims.create({
+        key: 'enemy_knight_walk',
+        frames: this.anims.generateFrameNumbers('enemy_knight_walk', { start: 0, end: 7 }),
+        frameRate: 10,
+        repeat: -1,
+      });
+    }
 
     this.uiManager = new UIManager(this);
     this.playerManager = new PlayerManager(this, this.uiManager);

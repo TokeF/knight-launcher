@@ -173,28 +173,25 @@ export class GameObjectManager {
   }
 
   private spawnEnemy(x: number, y: number, defIndex: number) {
-    const enemy = this.scene.matter.add.sprite(
-      x,
-      y,
-      "enemy_knight_texture",
-      undefined,
-      {
-        label: "enemy_knight",
-        friction: 1,
-        ignoreGravity: true,
-        collisionFilter: {
-          category: CAT_ENEMY,
-          mask: CAT_PLAYER,
-        },
-      }
-    );
+    const direction = Phaser.Math.RND.pick([-1, 1]);
+    const enemy = this.scene.matter.add.sprite(x, y, "enemy_knight_walk", 0, {
+      label: "enemy_knight",
+      friction: 1,
+      ignoreGravity: true,
+      collisionFilter: {
+        category: CAT_ENEMY,
+        mask: CAT_PLAYER,
+      },
+    });
+    enemy.setDisplaySize(42, 42);
+    enemy.setScale(2, 2);
+    enemy.setOrigin(0.5, 0.5);
+    enemy.anims.play("enemy_knight_walk");
+    enemy.setFlipX(direction === -1);
 
     enemy.setData("defIndex", defIndex);
-    enemy.setData("direction", Phaser.Math.RND.pick([-1, 1]));
-    enemy.setData(
-      "moveUntilX",
-      x + Phaser.Math.Between(100, 300) * enemy.getData("direction")
-    );
+    enemy.setData("direction", direction);
+    enemy.setData("moveUntilX", x + Phaser.Math.Between(100, 300) * direction);
     this.activeEnemies.add(enemy);
   }
 
@@ -254,7 +251,7 @@ export class GameObjectManager {
     this.activeEnemies.getChildren().forEach((gameObject) => {
       const enemy = gameObject as Phaser.Physics.Matter.Sprite;
       const speed = 1.5;
-      const direction = enemy.getData("direction");
+      let direction = enemy.getData("direction");
       const moveUntilX = enemy.getData("moveUntilX");
 
       enemy.setVelocityX(speed * direction);
@@ -268,7 +265,10 @@ export class GameObjectManager {
         const newDistance = Phaser.Math.Between(100, 300);
         enemy.setData("direction", newDirection);
         enemy.setData("moveUntilX", enemy.x + newDistance * newDirection);
+        direction = newDirection;
       }
+      // Mirror sprite based on direction
+      enemy.setFlipX(direction === -1);
     });
   }
 }
