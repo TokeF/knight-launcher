@@ -30,6 +30,7 @@ export class GameScene extends Phaser.Scene {
 
   preload() {
     this.load.image("knight", "assets/knight.png");
+    this.load.image("tent", "assets/tent.png");
 
     const graphics = this.add.graphics();
     graphics.fillStyle(0xffffff, 1);
