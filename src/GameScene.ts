@@ -61,7 +61,7 @@ export class GameScene extends Phaser.Scene {
     this.backgroundLayer = new ParallaxLayer({
       scene: this,
       imageKeys: ["back1", "back2"],
-      scrollFactor: 1.3,
+      scrollFactor: 1,
       y: 600,
       tileWidth: 512,
       tileHeight: 300,
@@ -71,7 +71,7 @@ export class GameScene extends Phaser.Scene {
     this.middlegroundLayer = new ParallaxLayer({
       scene: this,
       imageKeys: ["middle"],
-      scrollFactor: 1.1,
+      scrollFactor: 0.9,
       y: 600,
       tileWidth: 512,
       tileHeight: 200,
@@ -81,7 +81,7 @@ export class GameScene extends Phaser.Scene {
     this.foregroundLayer = new ParallaxLayer({
       scene: this,
       imageKeys: ["grass"],
-      scrollFactor: 0.9,
+      scrollFactor: 0.8,
       y: 600,
       tileWidth: 512,
       tileHeight: 100,
